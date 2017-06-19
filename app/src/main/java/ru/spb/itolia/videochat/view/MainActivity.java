@@ -101,7 +101,6 @@ public class MainActivity extends AppCompatActivity implements IView, Session.Se
     }
 
     private void sessionEnded(){
-        presenter.discardSession(mSession.getSessionId());
         if (mSubscriber != null) {
             mSession.unsubscribe(mSubscriber);
             mSubscriberViewContainer.removeAllViews();
@@ -110,7 +109,10 @@ public class MainActivity extends AppCompatActivity implements IView, Session.Se
             mSession.unpublish(mPublisher);
             mPublisherViewContainer.removeAllViews();
         }
-        mSession.disconnect();
+        if(mSession != null) {
+            mSession.disconnect();
+            presenter.discardSession(mSession.getSessionId());
+        }
     }
 
     // SessionListener methods
