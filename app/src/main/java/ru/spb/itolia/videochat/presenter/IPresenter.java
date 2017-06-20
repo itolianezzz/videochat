@@ -8,10 +8,8 @@ import ru.spb.itolia.videochat.view.MainActivity;
  */
 
 public interface IPresenter {
-    public void findPartner();
-
-    void detachView();
     void attachView(IView view);
-
+    void detachView();
+    void findPartner();
     void discardSession(String sessionId);
 }

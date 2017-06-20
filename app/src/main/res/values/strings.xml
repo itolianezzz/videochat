@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">videochat</string>
+    <string name="request_permissions">This app needs access to your camera and mic to make video calls</string>
+    <string name="partner_disconnected">Partner disconnected. Searching for new one</string>
+    <string name="error">Something went wrong, sorry. Restart app, please</string>
+    <string name="partner_found">Partner found. Starting chat</string>
+    <string name="session_created">Session created. Waiting for partner</string>
 </resources>

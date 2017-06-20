@@ -10,6 +10,6 @@ import retrofit2.Call;
  */
 
 public interface IModel {
-    public Single<SessionInfo> getSession();
-    public Completable discardSession(String sessionId);
+    Single<SessionInfo> getSession();
+    Completable discardSession(String sessionId);
 }

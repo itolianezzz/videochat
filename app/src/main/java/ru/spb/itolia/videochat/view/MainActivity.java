@@ -24,10 +24,9 @@ import ru.spb.itolia.videochat.R;
 import ru.spb.itolia.videochat.model.SessionInfo;
 import ru.spb.itolia.videochat.presenter.MainPresenter;
 
-public class MainActivity extends AppCompatActivity implements IView, Session.SessionListener, PublisherKit.PublisherListener {
+public class MainActivity extends AppCompatActivity implements IView, Session.SessionListener {
     private static final String TAG_RETAIN_FRAGMENT = "retain_fragment";
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
-    private static final int RC_SETTINGS_SCREEN_PERM = 123;
     private static final int RC_VIDEO_APP_PERM = 124;
 
 
@@ -40,13 +39,12 @@ public class MainActivity extends AppCompatActivity implements IView, Session.Se
     private MainActivityRetainFragment mRetainFragment;
     private MainPresenter presenter;
     private LottieAnimationView pbSubscriber;
-    private SessionInfo sessionInfo;
+    private LottieAnimationView pbPublisher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        // initialize view objects from your layout
         initRetainFragment();
         initPresenter();
         initViews();
@@ -74,7 +72,8 @@ public class MainActivity extends AppCompatActivity implements IView, Session.Se
     private void initViews() {
         mPublisherViewContainer = (FrameLayout)findViewById(R.id.publisher_container);
         mSubscriberViewContainer = (FrameLayout)findViewById(R.id.subscriber_container);
-        pbSubscriber = (LottieAnimationView ) findViewById(R.id.loader);
+        pbSubscriber = (LottieAnimationView ) findViewById(R.id.subscriber_loader);
+        pbPublisher = (LottieAnimationView ) findViewById(R.id.publsiher_loader);
     }
 
     @Override
@@ -87,40 +86,55 @@ public class MainActivity extends AppCompatActivity implements IView, Session.Se
     private void requestPermissions() {
         String[] perms = { Manifest.permission.INTERNET, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO };
         if (!EasyPermissions.hasPermissions(this, perms)) {
-            EasyPermissions.requestPermissions(this, "This app needs access to your camera and mic to make video calls", RC_VIDEO_APP_PERM, perms);
+            EasyPermissions.requestPermissions(this, getResources().getString(R.string.request_permissions), RC_VIDEO_APP_PERM, perms);
         }
     }
 
 
     @Override
     public void sessionConnected(SessionInfo sessionInfo) {
-        this.sessionInfo = sessionInfo;
         mSession = new Session.Builder(this, BuildConfig.API_KEY, sessionInfo.getSessionId()).build();
         mSession.setSessionListener(this);
         mSession.connect(sessionInfo.getToken());
     }
 
+    @Override
+    public void onError(Throwable throwable) {
+        Log.e(LOG_TAG, "Error! " + throwable);
+        Toast.makeText(this, getString(R.string.error), Toast.LENGTH_SHORT).show();
+        finish();
+    }
+
     private void sessionEnded(){
         if (mSubscriber != null) {
             mSession.unsubscribe(mSubscriber);
+            mSubscriber = null;
             mSubscriberViewContainer.removeAllViews();
         }
         if(mPublisher != null){
             mSession.unpublish(mPublisher);
+            mPublisher = null;
             mPublisherViewContainer.removeAllViews();
         }
         if(mSession != null) {
-            mSession.disconnect();
             presenter.discardSession(mSession.getSessionId());
+            mSession.disconnect();
         }
+    }
+
+    @Override
+    public void onError(Session session, OpentokError opentokError) {
+        Log.e(LOG_TAG, "Session error: " + opentokError.getMessage());
+        Toast.makeText(this, getResources().getString(R.string.error), Toast.LENGTH_SHORT).show();
     }
 
     // SessionListener methods
     @Override
     public void onConnected(Session session) {
         Log.i(LOG_TAG, "Session Connected");
+        Toast.makeText(this, getString(R.string.session_created), Toast.LENGTH_SHORT).show();
         mPublisher = new Publisher.Builder(this).build();
-        //mPublisher.setPublisherListener(this);
+        mPublisherViewContainer.removeAllViews();
         mPublisherViewContainer.addView(mPublisher.getView());
         mSession.publish(mPublisher);
     }
@@ -134,6 +148,7 @@ public class MainActivity extends AppCompatActivity implements IView, Session.Se
     public void onStreamReceived(Session session, Stream stream) {
         Log.i(LOG_TAG, "Stream Received");
         mSubscriberViewContainer.removeAllViews();
+        Toast.makeText(this, getString(R.string.partner_found), Toast.LENGTH_SHORT).show();
         if (mSubscriber == null) {
             mSubscriber = new Subscriber.Builder(this, stream).build();
             mSession.subscribe(mSubscriber);
@@ -145,31 +160,13 @@ public class MainActivity extends AppCompatActivity implements IView, Session.Se
     public void onStreamDropped(Session session, Stream stream) {
         Log.i(LOG_TAG, "Stream Dropped");
         sessionEnded();
-        Toast.makeText(this, "Partner disconnected. Searching for new one", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, getResources().getString(R.string.partner_disconnected), Toast.LENGTH_SHORT).show();
         presenter.findPartner();
         mSubscriberViewContainer.addView(pbSubscriber);
+        mPublisherViewContainer.addView(pbPublisher);
     }
 
-    @Override
-    public void onError(Session session, OpentokError opentokError) {
-        Log.e(LOG_TAG, "Session error: " + opentokError.getMessage());
-    }
-
-    // PublisherListener methods
-    @Override
-    public void onStreamCreated(PublisherKit publisherKit, Stream stream) {
-        Log.d(LOG_TAG, "onStreamCreated()");
-    }
-
-    @Override
-    public void onStreamDestroyed(PublisherKit publisherKit, Stream stream) {
-        Log.d(LOG_TAG, "onStreamDestroyed()");
-    }
-
-    @Override
-    public void onError(PublisherKit publisherKit, OpentokError opentokError) {
-        Log.d(LOG_TAG, "onError()");
-    }
+    //Activity lifecycle
 
     @Override
     protected void onResume() {

@@ -16,19 +16,12 @@ import ru.spb.itolia.videochat.view.IView;
 public class MainPresenter implements IPresenter {
     private static final String LOG_TAG = MainPresenter.class.getSimpleName();
     private final IModel model;
-    //private Session mSession;
     private IView view;
     private Disposable disposable;
-
-
-    //private static String SESSION_ID = "1_MX40NTg5MzI1Mn5-MTQ5NzUyNDYwODMwNH5mc1ExV1psT1ZUQ0VwU2lLb09YeVpwcTh-fg";
-    //private static String TOKEN = "T1==cGFydG5lcl9pZD00NTg5MzI1MiZzZGtfdmVyc2lvbj1kZWJ1Z2dlciZzaWc9ZDI5NTk3MTE0ZmQxZmNlMjIzNTIzNTk0NzhiODEzN2YyMzgyNGZjMDpzZXNzaW9uX2lkPTFfTVg0ME5UZzVNekkxTW41LU1UUTVOelV5TkRZd09ETXdOSDVtYzFFeFYxcHNUMVpVUTBWd1UybExiMDlZZVZwd2NUaC1mZyZjcmVhdGVfdGltZT0xNDk3NTI0NjA4JnJvbGU9bW9kZXJhdG9yJm5vbmNlPTE0OTc1MjQ2MDguMzI5NjE5MTg0NjE1NCZleHBpcmVfdGltZT0xNTAwMTE2NjA4";
-
 
     public MainPresenter() {
         model = new MainModel();
     }
-
 
     @Override
     public void findPartner() {
@@ -36,7 +29,7 @@ public class MainPresenter implements IPresenter {
         disposable = model.getSession()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
-                .subscribe(view::sessionConnected);
+                .subscribe(view::sessionConnected, view::onError);
     }
 
     @Override

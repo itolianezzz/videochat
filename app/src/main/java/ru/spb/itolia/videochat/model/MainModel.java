@@ -4,8 +4,6 @@ import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 
 import io.reactivex.Completable;
 import io.reactivex.Single;
-import okhttp3.OkHttpClient;
-import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import ru.spb.itolia.videochat.BuildConfig;
@@ -19,16 +17,16 @@ public class MainModel implements IModel {
     private final VideoChatService service;
 
     public MainModel() {
-        //Logging
-        HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
+        //Un-comment if detail retrofit logging nedeed
+/*        HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
         logging.setLevel(HttpLoggingInterceptor.Level.BODY);
         OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
         httpClient.followRedirects(true);
-        httpClient.addInterceptor(logging);
+        httpClient.addInterceptor(logging);*/
 
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(BuildConfig.BASE_URL)
-                .client(httpClient.build())
+                //.client(httpClient.build())
                 .addConverterFactory(GsonConverterFactory.create())
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .build();
@@ -38,7 +36,6 @@ public class MainModel implements IModel {
 
     @Override
     public Single<SessionInfo> getSession() {
-
         return service.getSession();
     }
 

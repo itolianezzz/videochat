@@ -7,5 +7,6 @@ import ru.spb.itolia.videochat.model.SessionInfo;
  */
 
 public interface IView {
-    public void sessionConnected(SessionInfo sessionInfo);
+    void sessionConnected(SessionInfo sessionInfo);
+    void onError(Throwable throwable);
 }

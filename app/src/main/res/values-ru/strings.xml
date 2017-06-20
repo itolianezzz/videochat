@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="request_permissions">Этому приложению необходим доступ к камере и микрофону для корректной работы</string>
+    <string name="app_name">Видеочат</string>
+    <string name="partner_disconnected">Собеседник отключился. Ищу нового</string>
+    <string name="error">Упс! Ошибочка вышла. Возможно, перезапуск поможет</string>
+    <string name="partner_found">Собеседник найден. Общайтесь )</string>
+    <string name="session_created">Сессия создана. Жду собеседника&#8230;</string>
+</resources>
